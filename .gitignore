@@ -1,0 +1,29 @@
+# Build artifacts
+bin/
+obj/
+
+# VS / VS Code
+.vs/
+.vscode/
+
+# User-specific / IDE
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Other
+[Rr]elease/
+[Dd]ebug/
+.DS_Store
+Thumbs.db
+
