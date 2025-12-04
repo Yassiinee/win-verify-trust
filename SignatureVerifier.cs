@@ -1,11 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WinVerifyTrust
 {
     public class SignatureVerifier
     {
-        #region WinVerifyTrust API Declarations
+        #region WinVerifyTrust API
 
         [DllImport("wintrust.dll", ExactSpelling = true, SetLastError = false, CharSet = CharSet.Unicode)]
         private static extern uint WinVerifyTrust(
@@ -23,7 +24,6 @@ namespace WinVerifyTrust
         private const uint WTD_STATEACTION_VERIFY = 1;
         private const uint WTD_STATEACTION_CLOSE = 2;
 
-        // Trust Provider Error Codes
         private const uint TRUST_E_NOSIGNATURE = 0x800B0100;
         private const uint TRUST_E_EXPLICIT_DISTRUST = 0x800B0111;
         private const uint TRUST_E_SUBJECT_NOT_TRUSTED = 0x800B0004;
@@ -69,10 +69,10 @@ namespace WinVerifyTrust
 
             try
             {
-                // Allocate file path string
+                result.Certificate = GetCertificateFromFile(filePath);
+
                 filePathPtr = Marshal.StringToCoTaskMemUni(filePath);
 
-                // Setup WINTRUST_FILE_INFO
                 WINTRUST_FILE_INFO fileInfo = new()
                 {
                     cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_FILE_INFO)),
@@ -84,7 +84,6 @@ namespace WinVerifyTrust
                 fileInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(fileInfo));
                 Marshal.StructureToPtr(fileInfo, fileInfoPtr, false);
 
-                // Setup WINTRUST_DATA
                 WINTRUST_DATA trustData = new()
                 {
                     cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_DATA)),
@@ -104,24 +103,21 @@ namespace WinVerifyTrust
                 trustDataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(trustData));
                 Marshal.StructureToPtr(trustData, trustDataPtr, false);
 
-                // Call WinVerifyTrust
                 uint trustResult = WinVerifyTrust(
                     IntPtr.Zero,
                     WINTRUST_ACTION_GENERIC_VERIFY_V2,
                     trustDataPtr
                 );
 
-                // Interpret results
                 result.IsTrusted = trustResult == 0;
                 result.Status = GetStatusDescription(trustResult);
                 result.TrustStatus = GetTrustStatusDescription(trustResult);
 
                 if (trustResult != 0)
                 {
-                    result.ErrorMessage = GetErrorMessage(trustResult);
+                    result.ErrorMessage = $"Error Code: 0x{trustResult:X8}";
                 }
 
-                // Close the state data
                 trustData.dwStateAction = WTD_STATEACTION_CLOSE;
                 Marshal.StructureToPtr(trustData, trustDataPtr, true);
                 WinVerifyTrust(IntPtr.Zero, WINTRUST_ACTION_GENERIC_VERIFY_V2, trustDataPtr);
@@ -135,21 +131,30 @@ namespace WinVerifyTrust
             }
             finally
             {
-                // Clean up
-                if (filePathPtr != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(filePathPtr);
-                if (fileInfoPtr != IntPtr.Zero)
-                    Marshal.FreeHGlobal(fileInfoPtr);
-                if (trustDataPtr != IntPtr.Zero)
-                    Marshal.FreeHGlobal(trustDataPtr);
+                if (filePathPtr != IntPtr.Zero) Marshal.FreeCoTaskMem(filePathPtr);
+                if (fileInfoPtr != IntPtr.Zero) Marshal.FreeHGlobal(fileInfoPtr);
+                if (trustDataPtr != IntPtr.Zero) Marshal.FreeHGlobal(trustDataPtr);
             }
 
             return result;
         }
 
+        private X509Certificate2 GetCertificateFromFile(string filePath)
+        {
+            try
+            {
+                // Sometimes this works directly with signed files
+                return new X509Certificate2(filePath);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private string GetStatusDescription(uint result)
         {
-            return result == 0 ? "SUCCESS" : $"FAILED (0x{result:X8})";
+            return result == 0 ? "TRUSTED" : "NOT TRUSTED";
         }
 
         private string GetTrustStatusDescription(uint result)
@@ -157,33 +162,21 @@ namespace WinVerifyTrust
             switch (result)
             {
                 case 0:
-                    return "Trusted - Signature is valid and trusted";
+                    return "The digital signature is valid and trusted by Windows";
                 case TRUST_E_NOSIGNATURE:
-                    return "Not Signed - File has no signature";
+                    return "This file does not have a digital signature";
                 case TRUST_E_EXPLICIT_DISTRUST:
-                    return "Explicitly Distrusted - Signature present but marked as untrusted";
+                    return "The signature is present but has been explicitly marked as untrusted";
                 case TRUST_E_SUBJECT_NOT_TRUSTED:
-                    return "Not Trusted - Signature present but not trusted";
+                    return "The signature is present but the certificate is not trusted";
                 case CERT_E_EXPIRED:
-                    return "Expired - Signature certificate has expired";
+                    return "The signing certificate has expired";
                 case CERT_E_REVOKED:
-                    return "Revoked - Certificate has been revoked";
+                    return "The certificate has been revoked by the issuing authority";
                 case CERT_E_UNTRUSTEDROOT:
-                    return "Untrusted Root - Certificate chain is untrusted";
+                    return "The certificate chain root is not trusted";
                 default:
-                    return "Unknown Trust Status";
-            }
-        }
-
-        private string GetErrorMessage(uint result)
-        {
-            try
-            {
-                return new Win32Exception((int)(result & 0xFFFF)).Message;
-            }
-            catch
-            {
-                return $"Error code: 0x{result:X8}";
+                    return $"Unknown verification status (Code: 0x{result:X8})";
             }
         }
     }

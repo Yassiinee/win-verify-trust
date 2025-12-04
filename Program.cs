@@ -1,41 +1,16 @@
-﻿namespace WinVerifyTrust
+﻿using System;
+using System.Windows.Forms;
+
+namespace WinVerifyTrust
 {
-    internal class Program
+    internal static class Program
     {
-        private static void Main(string[] args)
+        [STAThread]
+        private static void Main()
         {
-            Console.WriteLine("=== Win Verify Trust - File Signature Checker ===\n");
-
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Usage: WinVerifyTrust <filepath>");
-                Console.WriteLine("\nExample:");
-                Console.WriteLine("  WinVerifyTrust C:\\Windows\\System32\\notepad.exe");
-                return;
-            }
-
-            string filePath = args[0];
-
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine($"Error: File not found - {filePath}");
-                return;
-            }
-
-            Console.WriteLine($"Checking file: {filePath}\n");
-
-            SignatureVerifier verifier = new();
-            var result = verifier.VerifyFile(filePath);
-
-            Console.WriteLine($"Verification Result: {result.Status}");
-            Console.WriteLine($"Trust Status: {result.TrustStatus}");
-
-            if (!string.IsNullOrEmpty(result.ErrorMessage))
-            {
-                Console.WriteLine($"Details: {result.ErrorMessage}");
-            }
-
-            Console.WriteLine($"\nIs Trusted: {result.IsTrusted}");
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
         }
     }
 }
