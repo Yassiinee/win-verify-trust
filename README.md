@@ -1,35 +1,39 @@
-# WinVerifyTrust
+## WinVerifyTrust
 
-Minimal C# console utility that wraps the native `WinVerifyTrust` API so you can check whether any Windows PE file is signed and if that signature chains to a trusted root. It prints a short verdict plus the detailed trust status/error returned by the OS, which makes it handy for quick triage of unsigned or revoked binaries.
+<p align="center">
+  <img src="icon.ico" alt="icon" width="80"/>
+</p>
+
+Modern C# **Windows Forms** application that wraps the native `WinVerifyTrust` API so you can check whether any Windows PE file is signed and if that signature chains to a trusted root. It shows a rich, icon-based UI with color-coded results plus detailed trust status/error returned by the OS, which makes it handy for quick triage of unsigned or revoked binaries.
 
 ## Requirements
 
 - Windows 10 or later
-- [.NET SDK 10.0](https://dotnet.microsoft.com/) (Preview at the time of writing)
+- [.NET SDK 10.0](https://dotnet.microsoft.com/) (Windows desktop, preview at the time of writing)
 
-## Build & Run
+## Build & Run (GUI)
 
 ```powershell
 git clone https://github.com/<your-account>/WinVerifyTrust.git
 cd WinVerifyTrust
 dotnet build
-dotnet run -- "C:\Windows\System32\notepad.exe"
+dotnet run
 ```
 
-The executable is emitted to `bin/Debug/net10.0/WinVerifyTrust.exe`, so you can also call it directly once built.
+The executable is emitted to `bin/Debug/net10.0-windows/WinVerifyTrust.exe` and includes a custom application icon (`icon.ico`), so you can also launch it directly from Explorer.
 
-## Usage
+## Open in Visual Studio
 
-```
-WinVerifyTrust <path-to-file>
-```
+- Open `WinVerifyTrust.sln` in Visual Studio 2022 or later.
+- Set the configuration to **Debug** or **Release** and build/run with `F5` or `Ctrl+F5`.
+- To pass an argument (file path) when debugging, set it under **Project Properties → Debug → Application arguments**.
 
-Examples:
+## Usage (Windows Forms UI)
 
-```powershell
-WinVerifyTrust "C:\Windows\System32\notepad.exe"
-WinVerifyTrust "D:\Downloads\driver.sys"
-```
+- Start `WinVerifyTrust.exe` (or run the project from Visual Studio / `dotnet run`).
+- Click **Browse** to select the executable, DLL, SYS, CAB, MSI, etc. you want to verify.
+- Click **Verify** to run `WinVerifyTrust` and display the result.
+- The main panel shows a green check or red cross icon with the overall status, while the lower section shows detailed certificate information (subject, issuer, validity period, serial number, thumbprint).
 
 ## Sample Output
 
