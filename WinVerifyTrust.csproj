@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
 	<UseWindowsForms>true</UseWindowsForms>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
 	<ApplicationIcon>icon.ico</ApplicationIcon>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>

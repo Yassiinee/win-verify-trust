@@ -152,32 +152,24 @@ namespace WinVerifyTrust
             }
         }
 
-        private string GetStatusDescription(uint result)
+        private static string GetStatusDescription(uint result)
         {
             return result == 0 ? "TRUSTED" : "NOT TRUSTED";
         }
 
-        private string GetTrustStatusDescription(uint result)
+        private static string GetTrustStatusDescription(uint result)
         {
-            switch (result)
+            return result switch
             {
-                case 0:
-                    return "The digital signature is valid and trusted by Windows";
-                case TRUST_E_NOSIGNATURE:
-                    return "This file does not have a digital signature";
-                case TRUST_E_EXPLICIT_DISTRUST:
-                    return "The signature is present but has been explicitly marked as untrusted";
-                case TRUST_E_SUBJECT_NOT_TRUSTED:
-                    return "The signature is present but the certificate is not trusted";
-                case CERT_E_EXPIRED:
-                    return "The signing certificate has expired";
-                case CERT_E_REVOKED:
-                    return "The certificate has been revoked by the issuing authority";
-                case CERT_E_UNTRUSTEDROOT:
-                    return "The certificate chain root is not trusted";
-                default:
-                    return $"Unknown verification status (Code: 0x{result:X8})";
-            }
+                0 => "The digital signature is valid and trusted by Windows",
+                TRUST_E_NOSIGNATURE => "This file does not have a digital signature",
+                TRUST_E_EXPLICIT_DISTRUST => "The signature is present but has been explicitly marked as untrusted",
+                TRUST_E_SUBJECT_NOT_TRUSTED => "The signature is present but the certificate is not trusted",
+                CERT_E_EXPIRED => "The signing certificate has expired",
+                CERT_E_REVOKED => "The certificate has been revoked by the issuing authority",
+                CERT_E_UNTRUSTEDROOT => "The certificate chain root is not trusted",
+                _ => $"Unknown verification status (Code: 0x{result:X8})",
+            };
         }
     }
 }

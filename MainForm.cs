@@ -379,7 +379,7 @@ namespace WinVerifyTrust
             }
         }
 
-        private string ExtractCommonName(string distinguishedName)
+        private static string ExtractCommonName(string distinguishedName)
         {
             string[] parts = distinguishedName.Split(',');
             foreach (string part in parts)

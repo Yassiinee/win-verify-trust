@@ -23,7 +23,7 @@ namespace WinVerifyTrust.Custom_Controls
             base.OnPaint(e);
         }
 
-        private GraphicsPath GetRoundedRectangle(Rectangle bounds, int radius)
+        private static GraphicsPath GetRoundedRectangle(Rectangle bounds, int radius)
         {
             GraphicsPath path = new();
             path.AddArc(bounds.X, bounds.Y, radius, radius, 180, 90);
