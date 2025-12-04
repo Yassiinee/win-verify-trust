@@ -6,6 +6,20 @@
 
 Modern C# **Windows Forms** application that wraps the native `WinVerifyTrust` API so you can check whether any Windows PE file is signed and if that signature chains to a trusted root. It shows a rich, icon-based UI with color-coded results plus detailed trust status/error returned by the OS, which makes it handy for quick triage of unsigned or revoked binaries.
 
+## UI Screenshots
+
+<p align="center">
+  <img src="screenshots/screenshot.png" alt="WinVerifyTrust - Trusted signature" width="750"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/trusted.PNG" alt="WinVerifyTrust - Trusted signature" width="750"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/not-trusted.PNG" alt="WinVerifyTrust - Not trusted / invalid signature" width="750"/>
+</p>
+
 ## Requirements
 
 - Windows 10 or later
@@ -14,7 +28,7 @@ Modern C# **Windows Forms** application that wraps the native `WinVerifyTrust` A
 ## Build & Run (GUI)
 
 ```powershell
-git clone https://github.com/<your-account>/WinVerifyTrust.git
+git clone https://github.com/Yassiinee/win-verify-trust
 cd WinVerifyTrust
 dotnet build
 dotnet run
